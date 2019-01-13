@@ -150,7 +150,7 @@ class TLDetector(object):
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
-        if not (None in (self.pose and self.waypoints_2d)):
+        if not (None in (self.pose, self.waypoint_tree)):
             car_wp_index = self.get_closest_waypoint(self.pose.pose.position.x,self.pose.pose.position.y)
             #diff mainrains the minimun number of way points ahead the traffic light is
             diff = len(self.waypoints.waypoints)

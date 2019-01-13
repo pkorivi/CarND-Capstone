@@ -51,9 +51,10 @@ class WaypointUpdater(object):
     def loop(self):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
-            if not (None in (self.pose, self.base_waypoints)):
+            if not (None in (self.pose, self.waypoint_tree)):
                 self.publish_waypoints()
             rate.sleep()
+            rospy.loginfo("Waypoint updater loop")
 
     def get_closest_waypoint_idx(self):
         x = self.pose.pose.position.x
@@ -80,11 +81,10 @@ class WaypointUpdater(object):
         self.final_waypoints_pub.publish(final_lane)
     
     def generate_lane(self):
-        rospy.loginfo("Inside generate lane")
         lane = Lane()
         closest_idx = self.get_closest_waypoint_idx()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
-        sliced_base_waypoints = self.base_waypoints[closest_idx:farthest_idx]
+        sliced_base_waypoints = self.base_waypoints.waypoints[closest_idx:farthest_idx]
 
         if (self.stopline_wp_idx == -1) or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = sliced_base_waypoints
@@ -93,11 +93,11 @@ class WaypointUpdater(object):
         
         return lane
     
-    def decelerate_waypoints(self,wayponts, closest_idx):
+    def decelerate_waypoints(self,waypoints, closest_idx):
         temp = []
         #stop 2 points early such that whole car stays behind the stop line
         stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0)
-        for i,wp in enumerate(wayponts):
+        for i,wp in enumerate(waypoints):
             p= Waypoint()
             p.pose = wp.pose
             dist = self.distance(waypoints,i,stop_idx)
