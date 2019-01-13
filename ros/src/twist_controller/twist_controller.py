@@ -16,8 +16,8 @@ class Controller(object):
         kp = 0.3
         ki = 0.1
         kd = 0.0
-        mn = 0.0
-        mx = 0.2
+        mn = 0.0 #min throttle
+        mx = 0.2 #max throttle
         self.throttle_controller = PID(kp,ki,kd,mn,mx)
 
         tau = 0.5 # 1/(2pi*tau) = cutoff frequency
@@ -32,6 +32,7 @@ class Controller(object):
         self.accel_limit = accel_limit
         self.wheel_radius = wheel_radius
         self.last_time = rospy.get_time()
+        self.last_vel = 0.
 
     def control(self, current_vel, dbw_enabled, linear_vel, angular_vel):
         # TODO: Change the arg, kwarg list to suit your needs
@@ -60,7 +61,7 @@ class Controller(object):
 
         if linear_vel == 0. and current_vel < 0.1:
             throttle = 0
-            brake = 400 #N*m - to hold the car in place if we stopped at traffic light
+            brake = 700 #N*m - to hold the car in place if we stopped at traffic light
         
         elif throttle < 0.1 and vel_error < 0.0:
             throttle = 0
